@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Netlik - Topluluk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 16px;
+        }
+        .app-container {
+            max-width: 480px;
+            width: 100%;
+            background: #13131c;
+            border-radius: 18px;
+            padding: 20px;
+            border: 1px solid #2a2a40;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .hidden { display: none !important; }
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0 12px;
+            background: #1a1a28;
+            border-radius: 40px;
+            padding: 4px;
+        }
+        .tab-bar button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 30px;
+            background: transparent;
+            color: #8a8aa0;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tab-bar button.active {
+            background: #6c5ce7;
+            color: #fff;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .btn-primary {
+            background: #6c5ce7;
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 40px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+        .btn-primary:hover { background: #5a4bd1; }
+        .btn-secondary {
+            background: #1a1a28;
+            border: 1px solid #2a2a40;
+            color: #8a8aa0;
+            font-weight: 500;
+            padding: 10px;
+            border-radius: 40px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .btn-secondary:hover { background: #222236; color: #fff; }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #8a8aa0;
+            margin-bottom: 4px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #2a2a40;
+            background: #0a0a0f;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s;
+        }
+        .form-group input:focus {
+            border-color: #6c5ce7;
+        }
+        .error-text {
+            color: #ff4757;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+        .timer-card {
+            background: #1a1a28;
+            border-radius: 18px;
+            padding: 24px 20px;
+            text-align: center;
+            border: 1px solid #2a2a40;
+            margin-bottom: 16px;
+        }
+        .timer-card .time-display {
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #fff, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .timer-card .sub-time {
+            font-size: 14px;
+            color: #8a8aa0;
+        }
+        .timer-card .motivation {
+            font-size: 14px;
+            color: #a29bfe;
+            margin-top: 8px;
+        }
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .stat-item {
+            background: #1a1a28;
+            border-radius: 12px;
+            padding: 12px 6px;
+            text-align: center;
+            border: 1px solid #2a2a40;
+        }
+        .stat-item .stat-number {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .stat-item .stat-label {
+            font-size: 11px;
+            color: #8a8aa0;
+            text-transform: uppercase;
+        }
+        .gold { color: #f9ca24; }
+        .green { color: #2ed573; }
+        .purple { color: #a29bfe; }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .action-buttons .btn-primary { flex: 1; }
+        .action-buttons .btn-primary.danger { background: #ff4757; }
+        .action-buttons .btn-primary.danger:hover { background: #e84141; }
+        .journal-entry {
+            background: #0a0a0f;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            border-left: 3px solid #6c5ce7;
+        }
+        .journal-entry .entry-text { font-size: 14px; color: #c0c0d0; }
+        .journal-entry .entry-date { font-size: 11px; color: #666; margin-top: 4px; }
+        .empty-state { text-align: center; color: #666; padding: 20px 0; font-size: 14px; }
+        .footer-text {
+            font-size: 12px;
+            color: #555;
+            text-align: center;
+            margin-top: 12px;
+            border-top: 1px solid #1a1a28;
+            padding-top: 12px;
+        }
+        /* TOPLULUK */
+        .community-post {
+            background: #1a1a28;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: 1px solid #2a2a40;
+        }
+        .community-post .post-user {
+            font-weight: 600;
+            color: #a29bfe;
+            font-size: 14px;
+        }
+        .community-post .post-time {
+            font-size: 11px;
+            color: #666;
+            float: right;
+        }
+        .community-post .post-text {
+            margin: 8px 0 10px;
+            font-size: 14px;
+            color: #d0d0e0;
+            word-wrap: break-word;
+        }
+        .community-post .post-actions {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #8a8aa0;
+        }
+        .community-post .post-actions span {
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .community-post .post-actions span:hover { color: #a29bfe; }
+        .community-post .post-actions .liked { color: #ff4757; }
+        .community-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .community-input input {
+            flex: 1;
+            padding: 12px 14px;
+            border-radius: 40px;
+            border: 1px solid #2a2a40;
+            background: #0a0a0f;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+        .community-input input:focus { border-color: #6c5ce7; }
+        .community-input button {
+            background: #6c5ce7;
+            border: none;
+            color: #fff;
+            padding: 0 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .community-input button:hover { background: #5a4bd1; }
+        .tab-link {
+            color: #a29bfe;
+            text-decoration: none;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .tab-link:hover { text-decoration: underline; }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: #13131c;
+            border-radius: 18px;
+            padding: 28px 24px;
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid #2a2a40;
+            text-align: center;
+        }
+        .modal-box h2 { font-size: 22px; margin-bottom: 8px; }
+        .modal-box p { color: #8a8aa0; font-size: 15px; margin-bottom: 20px; }
+        .modal-actions { display: flex; gap: 12px; }
+        .modal-actions button {
+            flex: 1;
+            padding: 14px;
+            border-radius: 40px;
+            border: none;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-actions .btn-cancel {
+            background: #1a1a28;
+            color: #8a8aa0;
+        }
+        .modal-actions .btn-cancel:hover { background: #222236; }
+        .modal-actions .btn-confirm {
+            background: #ff4757;
+            color: #fff;
+        }
+        .modal-actions .btn-confirm:hover { background: #e84141; }
+        .modal-actions .btn-confirm.purple { background: #6c5ce7; }
+        .modal-actions .btn-confirm.purple:hover { background: #5a4bd1; }
+    </style>
+</head>
+<body>
+<div class="app-container" id="app">
+    <!-- ===== GİRİŞ / KAYIT ===== -->
+    <div id="authSection">
+        <h1 style="text-align:center; font-size:28px; margin-bottom:6px; background:linear-gradient(135deg,#6c5ce7,#a29bfe); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Netlik</h1>
+        <p style="text-align:center; color:#8a8aa0; font-size:14px; margin-bottom:20px;">İyileşme yolculuğunda yalnız değilsin.</p>
+        <div style="display:flex; gap:10px; margin-bottom:18px;">
+            <button id="loginTabBtn" class="btn-secondary" style="flex:1;">Giriş</button>
+            <button id="registerTabBtn" class="btn-secondary" style="flex:1;">Kayıt</button>
+        </div>
+        <!-- Giriş -->
+        <div id="loginForm">
+            <div class="form-group">
+                <label>Kullanıcı Adı</label>
+                <input type="text" id="loginUsername" placeholder="Kullanıcı adın">
+            </div>
+            <div class="form-group">
+                <label>Şifre</label>
+                <input type="password" id="loginPassword" placeholder="Şifren">
+            </div>
+            <div id="loginError" class="error-text hidden"></div>
+            <button class="btn-primary" id="loginBtn">Giriş Yap</button>
+            <p style="text-align:center; color:#666; font-size:13px; margin-top:12px;">Hesabın yok mu? <span class="tab-link" id="gotoRegister">Kayıt ol</span></p>
+        </div>
+        <!-- Kayıt -->
+        <div id="registerForm" class="hidden">
+            <div class="form-group">
+                <label>Kullanıcı Adı</label>
+                <input type="text" id="regUsername" placeholder="Kullanıcı adın">
+            </div>
+            <div class="form-group">
+                <label>Şifre (En az 6 karakter)</label>
+                <input type="password" id="regPassword" placeholder="Şifren">
+            </div>
+            <div id="regError" class="error-text hidden"></div>
+            <button class="btn-primary" id="registerBtn">Kayıt Ol</button>
+            <p style="text-align:center; color:#666; font-size:13px; margin-top:12px;">Zaten hesabın var mı? <span class="tab-link" id="gotoLogin">Giriş yap</span></p>
+        </div>
+    </div>
+
+    <!-- ===== ANA SAYFA ===== -->
+    <div id="mainSection" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <div><i class="fas fa-user-circle" style="font-size:28px; color:#6c5ce7;"></i> <span id="displayUsername" style="font-weight:600; font-size:18px;"></span></div>
+            <button id="logoutBtn" style="background:transparent; border:1px solid #2a2a40; color:#8a8aa0; padding:6px 16px; border-radius:30px; cursor:pointer; font-size:13px;">Çıkış</button>
+        </div>
+
+        <!-- Sekmeler -->
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="tabDashboard"><i class="fas fa-home"></i> Anasayfa</button>
+            <button class="tab-btn" data-tab="tabCommunity" id="communityTabTrigger"><i class="fas fa-users"></i> Topluluk</button>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="tabDashboard" class="tab-content active">
+            <div class="timer-card">
+                <div class="time-display" id="timeDisplay">00:00:00</div>
+                <div class="sub-time" id="subTimeDisplay">0 gün</div>
+                <div class="motivation" id="motivationText">Her gün daha güçlüsün. 💪</div>
+            </div>
+            <div class="progress-stats">
+                <div class="stat-item"><div class="stat-number gold" id="dayCount">0</div><div class="stat-label">Gün</div></div>
+                <div class="stat-item"><div class="stat-number green" id="weekCount">0</div><div class="stat-label">Hafta</div></div>
+                <div class="stat-item"><div class="stat-number purple" id="monthCount">0</div><div class="stat-label">Ay</div></div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn-primary" id="checkInBtn"><i class="fas fa-check-circle"></i> Bugün İyiyim</button>
+                <button class="btn-primary danger" id="relapseBtn"><i class="fas fa-exclamation-triangle"></i> Nüksettim</button>
+            </div>
+            <div style="background:#1a1a28; border-radius:18px; padding:16px; border:1px solid #2a2a40;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-weight:600;"><i class="fas fa-book-open" style="color:#6c5ce7;"></i> Duygularım</span>
+                    <span class="tab-link" id="addJournalBtn">+ Ekle</span>
+                </div>
+                <div id="journalContainer"><div class="empty-state">Henüz bir not eklemedin.</div></div>
+            </div>
+        </div>
+
+        <!-- TOPLULUK -->
+        <div id="tabCommunity" class="tab-content">
+            <h3 style="margin-bottom:12px;"><i class="fas fa-users" style="color:#6c5ce7;"></i> Topluluk</h3>
+            <div id="communityPosts"><div class="empty-state">Yükleniyor...</div></div>
+            <div class="community-input">
+                <input type="text" id="communityInput" placeholder="Ne hissediyorsun?">
+                <button id="communitySendBtn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            <p style="font-size:11px; color:#555; margin-top:6px;">Herkesin görebileceği ortak paylaşım alanı.</p>
+        </div>
+
+        <div class="footer-text">© 2026 Netlik · <span id="userCountDisplay">0</span> üye</div>
+    </div>
+
+    <!-- MODALLAR -->
+    <div class="modal-overlay" id="relapseModal">
+        <div class="modal-box">
+            <h2>⚠️ Nüksettiğini Onayla</h2>
+            <p>Sayaç sıfırlanacak. Emin misin?</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="modalCancel">Vazgeç</button>
+                <button class="btn-confirm" id="modalConfirm">Evet, Onaylıyorum</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="journalModal">
+        <div class="modal-box" style="text-align:left;">
+            <h2>📝 Duygu Kaydı</h2>
+            <p style="margin-bottom:12px;">Bugün nasıl hissediyorsun?</p>
+            <textarea id="journalInput" style="width:100%; padding:12px; border-radius:12px; border:1px solid #2a2a40; background:#0a0a0f; color:#fff; font-family:inherit; font-size:14px; resize:vertical; min-height:80px;" placeholder="Duygularını yaz..."></textarea>
+            <div class="modal-actions" style="margin-top:16px;">
+                <button class="btn-cancel" id="journalCancel">İptal</button>
+                <button class="btn-confirm purple" id="journalSave">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        // GLOBAL ORTAK VERİTABANI (JSONBIN.io Ücretsiz API'si ile gerçek zamanlı küresel senkronizasyon)
+        // Bu anahtar ve kutu (bin) sayesinde tüm kullanıcılar tek bir ortak veritabanına yazar ve okur.
+        const BIN_ID = "65ba5c0e20603442ac5cd9ff"; // Ortak veritabanı ID'si
+        const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+        const API_KEY = "$2a$10$Rz20D2NHeC8W3eK3GzDclO682f7tVd/Yl8X6H6i4B5T19o1hG3v1K"; // Okuma ve Yazma Yetkili Güvenli Key
+
+        const STORAGE_KEY = 'netlik_users';
+        const SESSION_KEY = 'netlik_session';
+
+        let users = {};
+        let posts = [];
+        let currentUser = null;
+        let isFetching = false;
+
+        function loadUsers() {
+            try { const d = localStorage.getItem(STORAGE_KEY); if(d) users = JSON.parse(d); } catch(e){}
+        }
+        function saveUsers() { localStorage.setItem(STORAGE_KEY, JSON.stringify(users)); }
+
+        // SUNUCUDAN GERÇEK VERİLERİ ANLIK ÇEKME FONKSİYONU
+        async function fetchCommunityPosts() {
+            if (isFetching) return;
+            isFetching = true;
+            try {
+                const res = await fetch(`${API_URL}/latest`, {
+                    headers: {
+                        "X-Master-Key": API_KEY
+                    }
+                });
+                if(res.ok) {
+                    const data = await res.json();
+                    if(data && data.record && data.record.posts) {
+                        posts = data.record.posts;
+                        localStorage.setItem('netlik_posts_backup', JSON.stringify(posts));
+                        renderCommunity();
+                    }
+                }
+            } catch(e) {
+                console.error("Veri çekilemedi, yerel yedek yükleniyor:", e);
+                const localBackup = localStorage.getItem('netlik_posts_backup');
+                if(localBackup) {
+                    posts = JSON.parse(localBackup);
+                    renderCommunity();
+                }
+            } finally {
+                isFetching = false;
+            }
+        }
+
+        // SUNUCUYA GERÇEK ZAMANLI VERİ KAYDETME FONKSİYONU
+        async function saveCommunityPosts() {
+            localStorage.setItem('netlik_posts_backup', JSON.stringify(posts));
+            try {
+                await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Master-Key": API_KEY
+                    },
+                    body: JSON.stringify({ posts: posts })
+                });
+            } catch(e) {
+                console.error("Sunucuya senkronizasyon başarısız:", e);
+            }
+        }
+
+        function loadSession() {
+            try { const s = localStorage.getItem(SESSION_KEY); if(s) currentUser = JSON.parse(s); } catch(e){}
+        }
+        function saveSession() { localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser)); }
+
+        const $ = id => document.getElementById(id);
+        const authSection = $('authSection');
+        const mainSection = $('mainSection');
+        const loginForm = $('loginForm');
+        const registerForm = $('registerForm');
+        const loginTabBtn = $('loginTabBtn');
+        const registerTabBtn = $('registerTabBtn');
+        const gotoRegister = $('gotoRegister');
+        const gotoLogin = $('gotoLogin');
+        const loginBtn = $('loginBtn');
+        const registerBtn = $('registerBtn');
+        const loginUsername = $('loginUsername');
+        const loginPassword = $('loginPassword');
+        const regUsername = $('regUsername');
+        const regPassword = $('regPassword');
+        const loginError = $('loginError');
+        const regError = $('regError');
+        const displayUsername = $('displayUsername');
+        const logoutBtn = $('logoutBtn');
+        const timeDisplay = $('timeDisplay');
+        const subTimeDisplay = $('subTimeDisplay');
+        const motivationText = $('motivationText');
+        const dayCount = $('dayCount');
+        const weekCount = $('weekCount');
+        const monthCount = $('monthCount');
+        const journalContainer = $('journalContainer');
+        const checkInBtn = $('checkInBtn');
+        const relapseBtn = $('relapseBtn');
+        const addJournalBtn = $('addJournalBtn');
+        const communityPosts = $('communityPosts');
+        const communityInput = $('communityInput');
+        const communitySendBtn = $('communitySendBtn');
+        const userCountDisplay = $('userCountDisplay');
+        const modalCancel = $('modalCancel');
+        const modalConfirm = $('modalConfirm');
+        const relapseModal = $('relapseModal');
+        const journalModal = $('journalModal');
+        const journalInput = $('journalInput');
+        const journalCancel = $('journalCancel');
+        const journalSave = $('journalSave');
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function(){
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                document.getElementById(this.dataset.tab).classList.add('active');
+                
+                if(this.dataset.tab === 'tabCommunity') {
+                    fetchCommunityPosts();
+                }
+            });
+        });
+
+        function showLogin() {
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+            loginTabBtn.style.background = '#6c5ce7';
+            loginTabBtn.style.color = '#fff';
+            registerTabBtn.style.background = 'transparent';
+            registerTabBtn.style.color = '#8a8aa0';
+        }
+        function showRegister() {
+            registerForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+            registerTabBtn.style.background = '#6c5ce7';
+            registerTabBtn.style.color = '#fff';
+            loginTabBtn.style.background = 'transparent';
+            loginTabBtn.style.color = '#8a8aa0';
+        }
+
+        loginTabBtn.addEventListener('click', showLogin);
+        registerTabBtn.addEventListener('click', showRegister);
+        gotoRegister.addEventListener('click', showRegister);
+        gotoLogin.addEventListener('click', showLogin);
+
+        // ŞİFRE EN AZ 6 KARAKTER KURALI
+        registerBtn.addEventListener('click', function(){
+            const username = regUsername.value.trim();
+            const password = regPassword.value.trim();
+            regError.classList.add('hidden');
+            
+            if(!username || !password) {
+                regError.textContent = 'Kullanıcı adı ve şifre gerekli.';
+                regError.classList.remove('hidden');
+                return;
+            }
+            if(password.length < 6) {
+                regError.textContent = 'Güvenliğiniz için şifre en az 6 karakter olmalıdır.';
+                regError.classList.remove('hidden');
+                return;
+            }
+            if(users[username]) {
+                regError.textContent = 'Bu kullanıcı adı zaten alınmış.';
+                regError.classList.remove('hidden');
+                return;
+            }
+            users[username] = { password, data: { startDate: null, lastCheckIn: null, journals: [], relapseHistory: [] } };
+            saveUsers();
+            alert('✅ Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
+            regUsername.value = '';
+            regPassword.value = '';
+            showLogin();
+        });
+
+        loginBtn.addEventListener('click', function(){
+            const username = loginUsername.value.trim();
+            const password = loginPassword.value.trim();
+            loginError.classList.add('hidden');
+            if(!username || !password) {
+                loginError.textContent = 'Kullanıcı adı ve şifre gerekli.';
+                loginError.classList.remove('hidden');
+                return;
+            }
+            const user = users[username];
+            if(!user || user.password !== password) {
+                loginError.textContent = 'Kullanıcı adı veya şifre hatalı.';
+                loginError.classList.remove('hidden');
+                return;
+            }
+            currentUser = { username, data: user.data };
+            saveSession();
+            enterApp();
+        });
+
+        logoutBtn.addEventListener('click', function(){
+            if(confirm('Çıkış yapmak istediğinize emin misiniz?')){
+                currentUser = null;
+                saveSession();
+                location.reload();
+            }
+        });
+
+        function enterApp() {
+            authSection.classList.add('hidden');
+            mainSection.classList.remove('hidden');
+            displayUsername.textContent = currentUser.username;
+            updateUserCount();
+            fetchCommunityPosts();
+            startTimer();
+            updateUI();
+            loadJournals();
+        }
+
+        function getElapsedSeconds() {
+            if(!currentUser || !currentUser.data.startDate) return 0;
+            return (Date.now() - new Date(currentUser.data.startDate).getTime()) / 1000;
+        }
+        function getDays() { return Math.floor(getElapsedSeconds() / 86400); }
+        function getWeeks() { return Math.floor(getDays() / 7); }
+        function getMonths() {
+            if(!currentUser || !currentUser.data.startDate) return 0;
+            const s = new Date(currentUser.data.startDate);
+            const n = new Date();
+            return (n.getFullYear()-s.getFullYear())*12 + (n.getMonth()-s.getMonth());
+        }
+
+        function formatTime(s) {
+            const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = Math.floor(s%60);
+            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+        }
+
+        const MOTIVATION = ['Her gün daha güçlüsün. 💪','Bugün geçmiştekinden daha iyisin. 🌟','Kendine inan, başarabilirsin. 🚀','Her saniye değerli, sen değerlisin. ✨','Dayanıklılığın muhteşem. 🏆','Parlıyorsun, devam et! 💎'];
+
+        function updateUI() {
+            const sec = getElapsedSeconds();
+            const days = getDays();
+            timeDisplay.textContent = formatTime(sec);
+            subTimeDisplay.textContent = days + ' gün';
+            dayCount.textContent = days;
+            weekCount.textContent = getWeeks();
+            monthCount.textContent = getMonths();
+            motivationText.textContent = days > 0 ? `${days} gündür iyileşiyorsun. ${MOTIVATION[Math.floor(Math.random()*MOTIVATION.length)]}` : 'Başlamak için "Bugün İyiyim" butonuna bas. 💪';
+            const today = new Date().toDateString();
+            if(currentUser && currentUser.data.lastCheckIn === today) {
+                checkInBtn.innerHTML = '<i class="fas fa-check-circle"></i> Bugün Giriş Yapıldı';
+                checkInBtn.style.opacity = '0.6';
+                checkInBtn.style.cursor = 'default';
+            } else {
+                checkInBtn.innerHTML = '<i class="fas fa-check-circle"></i> Bugün İyiyim';
+                checkInBtn.style.opacity = '1';
+                checkInBtn.style.cursor = 'pointer';
+            }
+            saveUserData();
+            loadJournals();
+        }
+
+        function saveUserData() {
+            if(!currentUser) return;
+            if(users[currentUser.username]) {
+                users[currentUser.username].data = currentUser.data;
+                saveUsers();
+            }
+        }
+
+        function loadJournals() {
+            const j = currentUser?.data?.journals || [];
+            if(j.length === 0) { journalContainer.innerHTML = '<div class="empty-state">Henüz bir not eklemedin.</div>'; return; }
+            const sorted = [...j].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5);
+            let html = '';
+            sorted.forEach(entry => {
+                const d = new Date(entry.date);
+                const dateStr = d.toLocaleDateString('tr-TR');
+                html += `<div class="journal-entry"><div class="entry-text">${escapeHtml(entry.text)}</div><div class="entry-date">${dateStr}</div></div>`;
+            });
+            journalContainer.innerHTML = html;
+        }
+
+        function escapeHtml(t) { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+
+        checkInBtn.addEventListener('click', function(){
+            if(!currentUser) return;
+            const today = new Date().toDateString();
+            if(currentUser.data.lastCheckIn === today) return;
+            if(!currentUser.data.startDate) {
+                currentUser.data.startDate = new Date().toISOString();
+                currentUser.data.journals = [];
+                currentUser.data.relapseHistory = [];
+            }
+            currentUser.data.lastCheckIn = today;
+            const day = getDays();
+            let note = day === 0 ? 'Bugün başladım! Kendimle gurur duyuyorum. 💪' : 'Bugün iyiyim, kendimle barışığım.';
+            currentUser.data.journals.push({ date: new Date().toISOString(), text: note });
+            saveUserData();
+            updateUI();
+        });
+
+        relapseBtn.addEventListener('click', function(){
+            if(!currentUser || !currentUser.data.startDate) {
+                currentUser.data.startDate = new Date().toISOString();
+                currentUser.data.lastCheckIn = new Date().toDateString();
+                currentUser.data.journals.push({ date: new Date().toISOString(), text: 'Bugün başladım! 💪' });
+                saveUserData();
+                updateUI();
+                return;
+            }
+            relapseModal.classList.add('active');
+        });
+        modalCancel.addEventListener('click', ()=> relapseModal.classList.remove('active'));
+        modalConfirm.addEventListener('click', function(){
+            if(!currentUser) return;
+            currentUser.data.relapseHistory.push(new Date().toISOString());
+            currentUser.data.startDate = new Date().toISOString();
+            currentUser.data.lastCheckIn = null;
+            currentUser.data.journals.push({ date: new Date().toISOString(), text: 'Bugün nüksettim. Yeniden daha güçlü başlıyorum. 💪' });
+            saveUserData();
+            updateUI();
+            relapseModal.classList.remove('active');
+        });
+
+        addJournalBtn.addEventListener('click', ()=> journalModal.classList.add('active'));
+        journalCancel.addEventListener('click', ()=> journalModal.classList.remove('active'));
+        journalSave.addEventListener('click', function(){
+            const text = journalInput.value.trim();
+            if(text) {
+                currentUser.data.journals.push({ date: new Date().toISOString(), text });
+                saveUserData();
+                updateUI();
+                journalInput.value = '';
+                journalModal.classList.remove('active');
+            }
+        });
+
+        // ===== TOPLULUK GÖRÜNTÜLEME VE YENİ POST GÖNDERME =====
+        function renderCommunity() {
+            if(posts.length === 0) { communityPosts.innerHTML = '<div class="empty-state">Henüz paylaşım yok. İlk yazan sen ol!</div>'; return; }
+            let html = '';
+            const sorted = [...posts].sort((a,b) => b.timestamp - a.timestamp);
+            sorted.forEach(p => {
+                const liked = p.likes && p.likes.includes(currentUser?.username);
+                const likeCount = p.likes ? p.likes.length : 0;
+                const d = new Date(p.timestamp);
+                const timeStr = d.toLocaleString('tr-TR');
+                html += `
+                    <div class="community-post" data-id="${p.id}">
+                        <span class="post-user">${escapeHtml(p.username)}</span>
+                        <span class="post-time">${timeStr}</span>
+                        <div class="post-text">${escapeHtml(p.text)}</div>
+                        <div class="post-actions">
+                            <span class="like-btn ${liked?'liked':''}" data-id="${p.id}"><i class="fas fa-heart"></i> ${likeCount}</span>
+                            <span class="reply-btn" data-id="${p.id}"><i class="fas fa-reply"></i> Cevapla</span>
+                        </div>
+                    </div>
+                `;
+            });
+            communityPosts.innerHTML = html;
+            
+            document.querySelectorAll('.like-btn').forEach(el => {
+                el.addEventListener('click', function(){
+                    const id = parseFloat(this.dataset.id);
+                    toggleLike(id);
+                });
+            });
+            document.querySelectorAll('.reply-btn').forEach(el => {
+                el.addEventListener('click', function(){
+                    const id = parseFloat(this.dataset.id);
+                    const reply = prompt('Cevabınızı yazın:');
+                    if(reply && reply.trim()) {
+                        addPost(reply.trim(), id);
+                    }
+                });
+            });
+        }
+
+        function addPost(text, replyTo=null) {
+            if(!currentUser) return;
+            const post = {
+                id: Date.now() + Math.random(),
+                username: currentUser.username,
+                text: text,
+                timestamp: Date.now(),
+                likes: [],
+                replies: []
+            };
+            if(replyTo) {
+                const parent = posts.find(p => p.id === replyTo);
+                if(parent) {
+                    if(!parent.replies) parent.replies = [];
+                    parent.replies.push(post);
+                }
+            } else {
+                posts.push(post);
+            }
+            saveCommunityPosts();
+            renderCommunity();
+        }
+
+        function toggleLike(postId) {
+            if(!currentUser) return;
+            const post = posts.find(p => p.id === postId);
+            if(!post) return;
+            if(!post.likes) post.likes = [];
+            const idx = post.likes.indexOf(currentUser.username);
+            if(idx > -1) post.likes.splice(idx,1);
+            else post.likes.push(currentUser.username);
+            saveCommunityPosts();
+            renderCommunity();
+        }
+
+        communitySendBtn.addEventListener('click', function(){
+            const text = communityInput.value.trim();
+            if(text) {
+                addPost(text);
+                communityInput.value = '';
+            }
+        });
+        communityInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') communitySendBtn.click(); });
+
+        function updateUserCount() {
+            const count = Object.keys(users).length || 1;
+            userCountDisplay.textContent = count;
+        }
+
+        let timerInterval = null;
+        function startTimer() {
+            if(timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateUI, 1000);
+        }
+
+        loadUsers();
+        loadSession();
+
+        if(currentUser && users[currentUser.username]) {
+            currentUser.data = users[currentUser.username].data;
+            enterApp();
+        } else {
+            currentUser = null;
+            saveSession();
+            authSection.classList.remove('hidden');
+            mainSection.classList.add('hidden');
+            showLogin();
+        }
+
+        document.addEventListener('keydown', function(e){
+            if(e.key === 'Enter'){
+                if(!loginForm.classList.contains('hidden')) loginBtn.click();
+                else if(!registerForm.classList.contains('hidden')) registerBtn.click();
+            }
+        });
+
+        // Sayfa her açıldığında topluluk verilerini çek
+        fetchCommunityPosts();
+        
+        // Her 5 saniyede bir yeni gönderileri arka planda otomatik güncelle (Çok daha dinamik!)
+        setInterval(fetchCommunityPosts, 5000);
+
+    })();
+</script>
+</body>
+</html>
